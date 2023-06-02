@@ -22,7 +22,7 @@ const ConversationsList: React.FC<ConversationListProps> = ({
   users,
 }) => {
   const session = useSession();
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState(initialItems || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const { conversationId, isOpen } = useConversation();
@@ -35,7 +35,8 @@ const ConversationsList: React.FC<ConversationListProps> = ({
     if (!pusherKey) {
       return;
     }
-    const newHandler = (conversation: FullConversationType) => {
+    pusherClient.subscribe(pusherKey);
+    const newHandler = async (conversation: FullConversationType) => {
       setItems((current) => {
         if (find(current, { id: conversation.id })) {
           return current;
@@ -44,22 +45,22 @@ const ConversationsList: React.FC<ConversationListProps> = ({
       });
     };
 
-    const updateHandler = (conversation: FullConversationType) => {
+    const updateHandler = async (conversation: FullConversationType) => {
       setItems((current) =>
         current.map((currentConversation) => {
-          // Avoid Duplicate
           if (currentConversation.id === conversation.id) {
             return {
               ...currentConversation,
               messages: conversation.messages,
             };
           }
+
           return currentConversation;
         })
       );
     };
 
-    const removeHandler = (conversation: FullConversationType) => {
+    const removeHandler = async (conversation: FullConversationType) => {
       setItems((current) => {
         return [...current.filter((convo) => convo.id !== conversation.id)];
       });
@@ -69,7 +70,6 @@ const ConversationsList: React.FC<ConversationListProps> = ({
       }
     };
 
-    pusherClient.subscribe(pusherKey);
     pusherClient.bind("conversation:new", newHandler);
     pusherClient.bind("conversation:update", updateHandler);
     pusherClient.bind("conversation:remove", removeHandler);
