@@ -5,7 +5,7 @@ import useActiveList from "./useActiveList";
 
 const useActiveChannel = () => {
   const { set, add, remove } = useActiveList();
-  const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
+  const [activeChannel, setActiveChannel] = useState<any>(null);
   useEffect(() => {
     let channel = activeChannel;
 
